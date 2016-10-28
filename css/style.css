@@ -113,6 +113,20 @@ button:hover {
 	background: #184c62;
 }
 
+/*===================
+customized by student
+===================*/
+select{
+	background: #c1deeb;
+	border-color: #5e97b0;
+	transition: border-color .4s, background-color .4s;
+}
+select:focus{
+	background: #fff;
+	
+}
+
+
 /* ================================= 
   Page Styles
 ==================================== */

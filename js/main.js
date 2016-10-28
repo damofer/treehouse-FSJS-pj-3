@@ -1,3 +1,4 @@
+"use strict"; // few new tricks, hu? , go to line 415 for an improvement.
 
 // Get focus on first input with type text.
 var inputList = document.getElementsByTagName("input");
@@ -84,7 +85,9 @@ function setColors(colorList,color1,color2,color3){
 	color.value =color1;
 
 	}
+	$("#colors-js-puns").hide();
 clearColors(colorList,"select a design first");
+
 design.addEventListener("change",function(){
 
 	try{
@@ -95,14 +98,15 @@ design.addEventListener("change",function(){
 	}
 
 	if(this.value =="js puns"){
-		
+		$("#colors-js-puns").show();
 		setColors(colorList,"cornflowerblue","darkslategrey","gold");
 
 	}else if(this.value =="heart js"){
-		
+		$("#colors-js-puns").show();
 		setColors(colorList,"tomato","steelblue","dimgrey");
 
 	}else{
+		$("#colors-js-puns").hide();
 		clearColors(colorList,"select a design first");
 	}
 });
@@ -116,12 +120,13 @@ design.addEventListener("change",function(){
 // Wednesday 9am - 12pm : build-tools
 // Wednesday 1pm - 4pm: npm
 // Conclusion : the checkboxes that collide are Js-framework with express and Js-libs with node.
+
 var jsFramework = document.getElementsByName("js-frameworks")[0];
 var express = document.getElementsByName("express")[0];
 var jsLibs = document.getElementsByName("js-libs")[0];
 var node = document.getElementsByName("node")[0];
 
-
+// method that makes checkboxes mutually exclusive
 function exclude(element1 , element2){
 	element1.addEventListener("change",function(){
 		if(element1.checked){
@@ -134,16 +139,17 @@ function exclude(element1 , element2){
 	
 	});
 }
-
-exclude(jsFramework,express);
-exclude(express,jsFramework);
-exclude(jsLibs,node);
-exclude(node,jsLibs);
-
 //Adding a total
-
 var total= 0;
+//setting function that handles the activities section.
 function setActivities(){
+
+	exclude(jsFramework,express);
+	exclude(express,jsFramework);
+	exclude(jsLibs,node);
+	exclude(node,jsLibs);
+
+
 
 	var $activities = $(".activities");
 	var $activities_checkboxes = $(".activities input");
@@ -262,28 +268,28 @@ function validate(){
 	
 	
 
-	var a = validate_name();
-	var b = validate_mail();
-	var c = validate_role();
-	var d =validate_item();
-	var e =validate_activities();
-	var f =validate_payment();
+	var v_a = validate_name();
+	var v_b = validate_mail();
+	var v_c = validate_role();
+	var v_d =validate_item();
+	var v_e =validate_activities();
+	var v_f =validate_payment();
 
-	console.log( "name =" + a );
-	console.log( "mail =" + b );
-	console.log( "role =" + c );
-	console.log( "item =" + d );
-	console.log( "activities =" + e );
-	console.log( "payment =" + f );
+	console.log( "name =" + v_a );
+	console.log( "mail =" + v_b );
+	console.log( "role =" + v_c );
+	console.log( "item =" + v_d );
+	console.log( "activities =" + v_e );
+	console.log( "payment =" + v_f );
 	console.log( "**************");
 
 
-	if( a&&b&&c&&d&&e&&f) {
+	if( v_a&&v_b&&v_c&&v_d&&v_e&&v_f) {
 		console.log("ALL OK");
 		return true;
 
 	}else return false;
-	$('html, body').animate({ scrollTop: 0 }, 'fast');  
+	
 }
 
 
@@ -404,6 +410,50 @@ function validate_payment(){
 		return true;
 	}
 }
+
+
+//IMPROVEMENT//////////////////
+//this i an improvement of the last code, i made a single function for all CC fields validation.
+function validate_cc_field(element,itemName, warningMsg, min, max){
+		
+		var warningId= "#"+itemName+"_warning";
+		if(element[0].value.length < min || element[0].value.length > max ){
+		
+			if( !($( warningId ).length) ){
+			createErrorMsg(itemName,element,warningMsg);
+			
+			}else{
+				$(warningId).text(warningMsg);
+				
+			}
+			return false;
+		}
+		else{
+
+
+			try{
+	       		 	if(isNaN(element[0].value)) throw itemName +" is NaN";
+		        	
+		        	if($( warningId ).length){
+		        		document.getElementById(itemName + "_warning").remove();
+		        	}
+		        	return true;
+	        	}
+   		catch(e){
+		   		
+				if( !($( warningId ).length) ){
+				createErrorMsg(itemName,element,e);
+				}else{
+					$(warningId).text(e);
+				}
+		       return false;
+    		}
+		
+		}
+
+	}
+
+// credit card validation
 function validate_creditCard(){
 
 	var $card_Number = $("#cc-num");
@@ -412,58 +462,15 @@ function validate_creditCard(){
 	var ccOK = false;
 	var zipOK = false;
 	var ccvOK = false;
-
-	if($card_Number[0].value === ""){
-		ccOK = false;
-
-		if( !($( "#cc_warning" ).length)){
-			createErrorMsg("cc",$card_Number,"credit card number required");
-		}
-	}
-	else{
-		ccOK = true;
-		if($( "#cc_warning" ).length)
-		document.getElementById("cc_warning").remove();
 	
-		
-	}
-	if($zip[0].value === ""){
 
-		zipOK = false;
-		 if( !($( "#zip_warning" ).length)){
-		createErrorMsg("zip",$zip,"zip code required");
-		}
-	}
-	else{	zipOK = true;
-		if($( "#zip_warning" ).length)
-		document.getElementById("zip_warning").remove();
-					
-	}
-	if($cvv[0].value.length != 3){
-		ccvOK = false;
-		if( !($( "#cvv_warning" ).length) ){
-		createErrorMsg("cvv",$cvv,"cvv must have 3 digits");
-		}
-	}
-	else{
+	ccOK =validate_cc_field($card_Number,"cc","cc number required, 13 to 16 digits",13,16);
 
+	zipOK = validate_cc_field($zip,"zip","zip required 4 to 6",4,6);
 
-		try{
-       		 	parseInt($cvv[0].value);
-	        	ccvOK = true;
-	        	if($( "#cvv_warning" ).length){
-	        		document.getElementById("cvv_warning").remove();
-	        	}
-        	}
-   		catch(e){
-	   		ccvOK = false;
-			if( !($( "#cvv_warning" ).length) ){
-			createErrorMsg("cvv",$cvv,"cvv must have 3 digits");
-			}
-	        
-    	}
-		
-	}
+	ccvOK = validate_cc_field($cvv,"cvv","cvv must be 3 digits",3,3);
+	
+
 
 	console.log("/////// payment ////////");
 	console.log( "cc =" + ccOK );
